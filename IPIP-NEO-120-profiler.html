@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCEAN · Big Five Persönlichkeitstest</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f7f4ef;
+  --cream: #edeae3;
+  --ink:   #1a1a18;
+  --ink2:  #3a3a36;
+  --muted: #8a8880;
+  --rule:  rgba(26,26,24,.1);
+  --O: #2563eb; --O-bg: #eff6ff;
+  --C: #15803d; --C-bg: #f0fdf4;
+  --E: #c2410c; --E-bg: #fff7ed;
+  --A: #be123c; --A-bg: #fff1f2;
+  --N: #6d28d9; --N-bg: #f5f3ff;
+  --r: 3px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCREENS ─────────────────────── */
+.screen { display: none !important; }
+.screen.active { display: block !important; }
+#cover.active { display: grid !important; }
+#test.active  { display: flex  !important; }
+#loading.active { display: flex !important; }
+
+/* ── COVER ───────────────────────── */
+#cover {
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+.cl {
+  background: var(--ink);
+  padding: 72px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.cl::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.04);
+  pointer-events: none;
+}
+
+.cl-eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.28);
+}
+
+.ocean-stack { margin: 40px 0; }
+.o-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding: 10px 0;
+}
+.o-row:last-child { border-bottom: 1px solid rgba(255,255,255,.07); }
+.o-ltr {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(52px, 7vw, 80px);
+  line-height: .88;
+  color: rgba(255,255,255,.9);
+  width: .75em;
+  flex-shrink: 0;
+  transition: opacity .2s;
+}
+.o-row:hover .o-ltr { opacity: .2; }
+.o-word {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255,255,255,.22);
+  letter-spacing: .06em;
+  padding-bottom: 2px;
+}
+
+.cl-foot {
+  font-size: 10px;
+  color: rgba(255,255,255,.15);
+  line-height: 1.9;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* RIGHT */
+.cr {
+  background: var(--paper);
+  padding: 72px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 1px solid var(--rule);
+  overflow-y: auto;
+}
+
+.cr-kicker {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.cr-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 3.5vw, 44px);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.cr-body {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 16px;
+  line-height: 1.85;
+  font-weight: 300;
+  max-width: 360px;
+}
+
+.domain-table {
+  margin: 36px 0;
+  border-top: 1px solid var(--rule);
+}
+.dt-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.dt-ltr {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  width: 22px;
+  flex-shrink: 0;
+}
+.dt-ltr.O { color: var(--O); }
+.dt-ltr.C { color: var(--C); }
+.dt-ltr.E { color: var(--E); }
+.dt-ltr.A { color: var(--A); }
+.dt-ltr.N { color: var(--N); }
+.dt-names { flex: 1; }
+.dt-en { font-size: 12px; font-weight: 600; color: var(--ink2); }
+.dt-de { font-size: 10px; color: var(--muted); font-weight: 300; }
+.dt-n  { font-size: 10px; color: var(--muted); }
+
+/* FORM */
+.form-kicker {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.f-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.ff { flex: 1; }
+.ff label {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.ff input[type=number] {
+  width: 100%;
+  padding: 10px 13px;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .15s;
+  -moz-appearance: textfield;
+}
+.ff input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.ff input[type=number]:focus { border-color: var(--ink2); }
+
+.g-row { display: flex; gap: 5px; }
+.gbtn {
+  flex: 1;
+  padding: 9px 6px;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+.gbtn:hover { border-color: var(--ink2); color: var(--ink); }
+.gbtn.sel { background: var(--ink); color: white; border-color: var(--ink); }
+
+.start-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: white;
+  border: none;
+  border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: 14px;
+}
+.start-btn:hover { background: var(--ink2); }
+.start-btn:disabled {
+  background: var(--cream);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.form-note {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 9px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* ── TEST ────────────────────────── */
+#test {
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--paper);
+}
+
+.t-hdr {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(247,244,239,.97);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.t-hdr-inner {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.d-chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+}
+.h-meta { flex: 1; }
+.h-top { font-size: 12px; font-weight: 500; color: var(--ink); }
+.h-bot { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.h-cnt {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--muted);
+}
+.h-cnt span { color: var(--ink); }
+
+.prog { height: 2px; background: var(--cream); }
+.prog-f { height: 100%; background: var(--ink); transition: width .35s cubic-bezier(.4,0,.2,1); }
+
+.t-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 40px;
+}
+.q-card { max-width: 680px; width: 100%; }
+
+.q-facet {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.q-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(22px, 4vw, 34px);
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 44px;
+}
+
+.opts { display: flex; flex-direction: column; gap: 7px; }
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all .12s;
+  color: var(--ink);
+}
+.opt:hover { border-color: var(--ink2); background: white; }
+.opt.sel { border-color: var(--ink); background: var(--ink); color: white; }
+
+.opt-n {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all .12s;
+}
+.opt.sel .opt-n { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.7); }
+.opt-l { font-size: 14px; }
+.opt-s { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.opt.sel .opt-s { color: rgba(255,255,255,.5); }
+
+.t-foot {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 40px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.back-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 8px 0;
+  letter-spacing: .04em;
+  transition: color .15s;
+}
+.back-btn:hover { color: var(--ink); }
+.back-btn:disabled { opacity: .3; cursor: default; }
+.kbd-hint { font-size: 10px; color: var(--muted); opacity: .5; }
+
+/* ── LOADING ─────────────────────── */
+#loading {
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--paper);
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--cream);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-txt {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+  letter-spacing: .08em;
+}
+
+/* ── RESULTS ─────────────────────── */
+#results { background: var(--paper); min-height: 100vh; }
+
+.r-hero {
+  background: var(--ink);
+  padding: 64px 40px;
+  text-align: center;
+}
+.r-hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(30px, 5vw, 50px);
+  color: white;
+}
+.r-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,.3);
+  margin-top: 8px;
+  font-weight: 300;
+  letter-spacing: .04em;
+}
+
+.r-body { max-width: 920px; margin: 0 auto; padding: 52px 32px; }
+
+/* Section header */
+.s-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  margin-top: 48px;
+}
+.s-head:first-child { margin-top: 0; }
+.s-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.s-line { flex: 1; height: 1px; background: var(--rule); }
+
+/* RADAR */
+.radar-block {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 36px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 36px;
+  align-items: center;
+}
+.r-ttl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.r-legend { display: flex; flex-direction: column; gap: 10px; }
+.rl { display: flex; align-items: center; gap: 10px; }
+.rl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.rl-names { flex: 1; }
+.rl-en { font-size: 12px; font-weight: 600; color: var(--ink); }
+.rl-de { font-size: 10px; color: var(--muted); }
+.rl-val { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--ink); }
+.rl-pct {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+  font-weight: 600;
+  white-space: nowrap;
+}
+svg.radar { width: 100%; max-width: 260px; display: block; margin: 0 auto; }
+
+/* DOMAIN CARDS */
+.dom-cards { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.dom-card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  overflow: hidden;
+  break-inside: avoid;
+}
+.dc-hdr {
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.dc-left {}
+.dc-ltr {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  line-height: 1;
+}
+.dc-en { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 2px; }
+.dc-de { font-size: 10px; color: var(--muted); font-weight: 300; }
+.dc-right { text-align: right; }
+.dc-mean {
+  font-family: 'DM Serif Display', serif;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+}
+.dc-pct {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.dc-norm { font-size: 9px; color: var(--muted); margin-top: 3px; font-weight: 300; }
+
+.dc-bar-wrap { padding: 12px 24px 14px; border-bottom: 1px solid var(--rule); }
+.dc-bar-bg { height: 2px; background: var(--cream); border-radius: 1px; overflow: hidden; }
+.dc-bar-f { height: 100%; border-radius: 1px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+
+.fcts { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+.fct {}
+.fct-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.fct-en { font-size: 12px; font-weight: 600; color: var(--ink2); }
+.fct-de { font-size: 10px; color: var(--muted); font-weight: 300; margin-left: 5px; }
+.fct-val { font-family: 'DM Serif Display', serif; font-size: 14px; color: var(--ink); }
+.fct-bg { height: 2px; background: var(--cream); border-radius: 1px; overflow: hidden; }
+.fct-f { height: 100%; border-radius: 1px; opacity: .6; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+
+/* LEGEND */
+.leg-box {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 26px;
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.leg-h {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.leg-p { font-size: 12px; line-height: 1.8; color: var(--muted); font-weight: 300; }
+.pct-scale { display: flex; flex-direction: column; gap: 5px; }
+.pct-r { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.pct-sw { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.r-actions { display: flex; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+.btn-o {
+  padding: 11px 22px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: white;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-o:hover { border-color: var(--ink); }
+.btn-s {
+  padding: 11px 22px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--ink);
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-s:hover { background: var(--ink2); }
+
+/* ── PRINT ───────────────────────── */
+@media print {
+  #cover, #test, #loading { display: none !important; }
+  #results { display: block !important; }
+  body { background: white; }
+  .r-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .dom-card, .radar-block, .leg-box { break-inside: avoid; }
+  .r-actions { display: none; }
+  .dc-bar-bg, .fct-bg { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .dc-bar-f, .fct-f { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ── RESPONSIVE ──────────────────── */
+@media (max-width: 720px) {
+  #cover { grid-template-columns: 1fr; }
+  .cl { padding: 44px 28px; min-height: 50vh; }
+  .cr { padding: 44px 28px; }
+  .radar-block { grid-template-columns: 1fr; }
+  .leg-box { grid-template-columns: 1fr; }
+  .r-hero { padding: 44px 20px; }
+  .r-body { padding: 36px 18px; }
+  .t-body { padding: 36px 20px; }
+  .t-hdr-inner, .t-foot { padding-left: 20px; padding-right: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div id="cover" class="screen active">
+  <div class="cl">
+    <div class="cl-eyebrow">IPIP-NEO-120 · Johnson (2014)</div>
+    <div class="ocean-stack">
+      <div class="o-row"><span class="o-ltr">O</span><span class="o-word">Openness to Experience</span></div>
+      <div class="o-row"><span class="o-ltr">C</span><span class="o-word">Conscientiousness</span></div>
+      <div class="o-row"><span class="o-ltr">E</span><span class="o-word">Extraversion</span></div>
+      <div class="o-row"><span class="o-ltr">A</span><span class="o-word">Agreeableness</span></div>
+      <div class="o-row"><span class="o-ltr">N</span><span class="o-word">Neuroticism</span></div>
+    </div>
+    <div class="cl-foot">
+      Johnson, J. A. (2014). Measuring thirty facets of the Five Factor Model<br>
+      with a 120-item public domain inventory.<br>
+      <em>Journal of Research in Personality, 51</em>, 78–89. · ipip.ori.org
+    </div>
+  </div>
+
+  <div class="cr">
+    <div>
+      <div class="cr-kicker">Persönlichkeitsdiagnostik</div>
+      <div class="cr-title">Big Five<br>Persönlichkeitstest</div>
+      <div class="cr-body">120 Items · 5 Domänen · 30 Facetten. Basiert auf dem IPIP-NEO-120 (Johnson, 2014) — dem wissenschaftlich validierten, freien Äquivalent zum NEO-PI-R. Ergebnisse mit Percentile-Ranks vs. Normstichprobe.</div>
+
+      <div class="domain-table">
+        <div class="dt-row"><span class="dt-ltr O">O</span><div class="dt-names"><div class="dt-en">Openness to Experience</div><div class="dt-de">Offenheit für Erfahrungen</div></div><span class="dt-n">24 Items · 6 Facetten</span></div>
+        <div class="dt-row"><span class="dt-ltr C">C</span><div class="dt-names"><div class="dt-en">Conscientiousness</div><div class="dt-de">Gewissenhaftigkeit</div></div><span class="dt-n">24 Items · 6 Facetten</span></div>
+        <div class="dt-row"><span class="dt-ltr E">E</span><div class="dt-names"><div class="dt-en">Extraversion</div><div class="dt-de">Extraversion</div></div><span class="dt-n">24 Items · 6 Facetten</span></div>
+        <div class="dt-row"><span class="dt-ltr A">A</span><div class="dt-names"><div class="dt-en">Agreeableness</div><div class="dt-de">Verträglichkeit</div></div><span class="dt-n">24 Items · 6 Facetten</span></div>
+        <div class="dt-row"><span class="dt-ltr N">N</span><div class="dt-names"><div class="dt-en">Neuroticism</div><div class="dt-de">Neurotizismus</div></div><span class="dt-n">24 Items · 6 Facetten</span></div>
+      </div>
+    </div>
+
+    <div>
+      <button class="start-btn" id="start-btn" onclick="beginTest()">
+        Test starten · 120 Fragen
+      </button>
+      <div class="form-note">Keine Datenweitergabe · alle Berechnungen lokal im Browser</div>
+    </div>
+  </div>
+</div>
+
+<!-- TEST -->
+<div id="test" class="screen">
+  <div class="t-hdr">
+    <div class="t-hdr-inner">
+      <div class="d-chip" id="hdr-chip"></div>
+      <div class="h-meta">
+        <div class="h-top" id="hdr-dom"></div>
+        <div class="h-bot" id="hdr-fac"></div>
+      </div>
+      <div class="h-cnt"><span id="q-cur">1</span>/120</div>
+    </div>
+    <div class="prog"><div class="prog-f" id="prog-f" style="width:0%"></div></div>
+  </div>
+
+  <div class="t-body">
+    <div class="q-card">
+      <div class="q-facet" id="q-facet"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+  </div>
+
+  <div class="t-foot">
+    <button class="back-btn" id="back-btn" onclick="prevQ()" disabled>← Zurück</button>
+    <div class="kbd-hint">Tastatur: 1–5 · ← Zurück</div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="screen">
+  <div class="spinner"></div>
+  <div class="loading-txt">Auswertung · Percentile-Ranks werden berechnet …</div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="r-hero">
+    <h1>Dein Big-Five-Profil</h1>
+    <div class="r-meta" id="r-meta"></div>
+  </div>
+  <div class="r-body">
+    <div class="s-head"><div class="s-title">Übersicht</div><div class="s-line"></div></div>
+    <div class="radar-block">
+      <div>
+        <div class="r-ttl">5 Domänen · Percentile-Ranks</div>
+        <div class="r-legend" id="r-legend"></div>
+      </div>
+      <svg class="radar" viewBox="0 0 280 280" id="radar-svg"></svg>
+    </div>
+
+    <div class="s-head" style="margin-top:44px"><div class="s-title">Domänen & Facetten</div><div class="s-line"></div></div>
+    <div class="dom-cards" id="dom-cards"></div>
+
+    <div class="leg-box">
+      <div>
+        <div class="leg-h">Mittelwert (1–5)</div>
+        <div class="leg-p">Durchschnitt der Itemantworten auf 5-stufiger Likert-Skala. 3.0 ist der theoretische Mittelpunkt; Populationsmittelwerte variieren je Domäne (Normdaten: Johnson, 2014).</div>
+      </div>
+      <div>
+        <div class="leg-h">Percentile-Rank</div>
+        <div class="pct-scale">
+          <div class="pct-r"><div class="pct-sw" style="background:#ef4444"></div>0–20 % · Sehr niedrig</div>
+          <div class="pct-r"><div class="pct-sw" style="background:#f97316"></div>21–40 % · Niedrig</div>
+          <div class="pct-r"><div class="pct-sw" style="background:#eab308"></div>41–60 % · Durchschnitt</div>
+          <div class="pct-r"><div class="pct-sw" style="background:#84cc16"></div>61–80 % · Hoch</div>
+          <div class="pct-r"><div class="pct-sw" style="background:#22c55e"></div>81–100 % · Sehr hoch</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="leg-box" style="margin-top:28px;">
+      <div>
+        <div class="leg-h">Datenschutz & Verwendung</div>
+        <div class="leg-p">Alle Berechnungen erfolgen lokal in deinem Browser. Keine Daten werden an Server übertragen · keine Speicherung · keine Cookies. Der JSON-Export speichert die Ergebnisse nur auf deinem Gerät zur Weiterverarbeitung.</div>
+      </div>
+      <div>
+        <div class="leg-h">Instrument</div>
+        <div class="leg-p"><strong>IPIP-NEO-120</strong> (Johnson, 2014): Public Domain Representation des NEO-PI-R. O6 Items neutral reformuliert nach IPIP-Standards (keine politischen Items).</div>
+      </div>
+    </div>
+
+    <div class="r-actions">
+      <button class="btn-o" onclick="restartTest()">Test wiederholen</button>
+      <button class="btn-s" onclick="window.print()">PDF speichern ↓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── META ──────────────────────────────────────────────
+const DOM = {
+  O:{en:'Openness to Experience',de:'Offenheit für Erfahrungen',c:'#2563eb',bg:'#eff6ff'},
+  C:{en:'Conscientiousness',de:'Gewissenhaftigkeit',c:'#15803d',bg:'#f0fdf4'},
+  E:{en:'Extraversion',de:'Extraversion',c:'#c2410c',bg:'#fff7ed'},
+  A:{en:'Agreeableness',de:'Verträglichkeit',c:'#be123c',bg:'#fff1f2'},
+  N:{en:'Neuroticism',de:'Neurotizismus',c:'#6d28d9',bg:'#f5f3ff'}
+};
+
+const FAC = {
+  O:[{k:'Imagination',de:'Vorstellungskraft'},{k:'Artistic Interests',de:'Ästhetisches Interesse'},{k:'Emotionality',de:'Emotionalität'},{k:'Adventurousness',de:'Abenteuerlust'},{k:'Intellect',de:'Intellekt'},{k:'Liberalism',de:'Liberalismus'}],
+  C:[{k:'Self-Efficacy',de:'Selbstwirksamkeit'},{k:'Orderliness',de:'Ordentlichkeit'},{k:'Dutifulness',de:'Pflichtbewusstsein'},{k:'Achievement-Striving',de:'Leistungsstreben'},{k:'Self-Discipline',de:'Selbstdisziplin'},{k:'Cautiousness',de:'Besonnenheit'}],
+  E:[{k:'Friendliness',de:'Herzlichkeit'},{k:'Gregariousness',de:'Geselligkeit'},{k:'Assertiveness',de:'Durchsetzungsvermögen'},{k:'Activity Level',de:'Aktivitätsniveau'},{k:'Excitement-Seeking',de:'Erlebnishunger'},{k:'Cheerfulness',de:'Fröhlichkeit'}],
+  A:[{k:'Trust',de:'Vertrauen'},{k:'Morality',de:'Moralität'},{k:'Altruism',de:'Altruismus'},{k:'Cooperation',de:'Kooperation'},{k:'Modesty',de:'Bescheidenheit'},{k:'Sympathy',de:'Mitgefühl'}],
+  N:[{k:'Anxiety',de:'Ängstlichkeit'},{k:'Anger',de:'Ärger'},{k:'Depression',de:'Depressivität'},{k:'Self-Consciousness',de:'Selbstbewusstheit'},{k:'Immoderation',de:'Mäßigungslosigkeit'},{k:'Vulnerability',de:'Verletzlichkeit'}]
+};
+
+const NORMS = {
+  O:{mean:3.50,sd:.80}, C:{mean:3.50,sd:.80},
+  E:{mean:3.40,sd:.90}, A:{mean:3.80,sd:.70}, N:{mean:2.80,sd:.90}
+};
+
+// ── ITEMS: IPIP-NEO-120 (Johnson, 2014) ───────────────
+const Q = [
+  // N1 Anxiety
+  {d:'N',f:'Anxiety',t:"Ich mache mir Sorgen um Dinge.",r:false},
+  {d:'N',f:'Anxiety',t:"Ich befürchte das Schlimmste.",r:false},
+  {d:'N',f:'Anxiety',t:"Ich habe Angst vor vielen Dingen.",r:false},
+  {d:'N',f:'Anxiety',t:"Ich gerate leicht unter Stress.",r:false},
+  // N2 Anger
+  {d:'N',f:'Anger',t:"Ich werde leicht wütend.",r:false},
+  {d:'N',f:'Anger',t:"Ich bin schnell gereizt.",r:false},
+  {d:'N',f:'Anger',t:"Ich verliere leicht die Beherrschung.",r:false},
+  {d:'N',f:'Anger',t:"Mich zu verärgern ist nicht leicht.",r:true},
+  // N3 Depression
+  {d:'N',f:'Depression',t:"Ich fühle mich oft niedergeschlagen.",r:false},
+  {d:'N',f:'Depression',t:"Ich mag mich selbst nicht.",r:false},
+  {d:'N',f:'Depression',t:"Ich bin oft in gedrückter Stimmung.",r:false},
+  {d:'N',f:'Depression',t:"Ich fühle mich mit mir selbst wohl.",r:true},
+  // N4 Self-Consciousness
+  {d:'N',f:'Self-Consciousness',t:"Es fällt mir schwer, auf andere zuzugehen.",r:false},
+  {d:'N',f:'Self-Consciousness',t:"Ich habe Angst, Aufmerksamkeit auf mich zu lenken.",r:false},
+  {d:'N',f:'Self-Consciousness',t:"Ich fühle mich nur im Kreis vertrauter Menschen wohl.",r:false},
+  {d:'N',f:'Self-Consciousness',t:"Schwierige soziale Situationen machen mir nichts aus.",r:true},
+  // N5 Immoderation
+  {d:'N',f:'Immoderation',t:"Ich verfalle in übermäßigen Konsum.",r:false},
+  {d:'N',f:'Immoderation',t:"Ich überschreite selten meine Grenzen.",r:true},
+  {d:'N',f:'Immoderation',t:"Ich kann Versuchungen leicht widerstehen.",r:true},
+  {d:'N',f:'Immoderation',t:"Ich kann meine Gelüste kontrollieren.",r:true},
+  // N6 Vulnerability
+  {d:'N',f:'Vulnerability',t:"Ich gerate leicht in Panik.",r:false},
+  {d:'N',f:'Vulnerability',t:"Ich werde von Ereignissen überwältigt.",r:false},
+  {d:'N',f:'Vulnerability',t:"Ich habe das Gefühl, Dinge nicht bewältigen zu können.",r:false},
+  {d:'N',f:'Vulnerability',t:"Ich bleibe unter Druck ruhig.",r:true},
+  // E1 Friendliness
+  {d:'E',f:'Friendliness',t:"Ich schließe leicht Freundschaften.",r:false},
+  {d:'E',f:'Friendliness',t:"Ich fühle mich unter Menschen wohl.",r:false},
+  {d:'E',f:'Friendliness',t:"Ich vermeide Kontakte mit anderen.",r:true},
+  {d:'E',f:'Friendliness',t:"Ich halte andere auf Abstand.",r:true},
+  // E2 Gregariousness
+  {d:'E',f:'Gregariousness',t:"Ich liebe große Parties.",r:false},
+  {d:'E',f:'Gregariousness',t:"Auf Parties spreche ich mit vielen verschiedenen Menschen.",r:false},
+  {d:'E',f:'Gregariousness',t:"Ich bin lieber allein.",r:true},
+  {d:'E',f:'Gregariousness',t:"Ich vermeide Menschenmengen.",r:true},
+  // E3 Assertiveness
+  {d:'E',f:'Assertiveness',t:"Ich ergreife die Initiative.",r:false},
+  {d:'E',f:'Assertiveness',t:"Ich versuche, andere zu führen.",r:false},
+  {d:'E',f:'Assertiveness',t:"Ich übernehme die Kontrolle über Dinge.",r:false},
+  {d:'E',f:'Assertiveness',t:"Ich warte darauf, dass andere vorangehen.",r:true},
+  // E4 Activity Level
+  {d:'E',f:'Activity Level',t:"Ich bin immer beschäftigt.",r:false},
+  {d:'E',f:'Activity Level',t:"Ich bin immer in Bewegung.",r:false},
+  {d:'E',f:'Activity Level',t:"Ich tue in meiner Freizeit viel.",r:false},
+  {d:'E',f:'Activity Level',t:"Ich lasse es gerne ruhig angehen.",r:true},
+  // E5 Excitement-Seeking
+  {d:'E',f:'Excitement-Seeking',t:"Ich liebe Aufregung.",r:false},
+  {d:'E',f:'Excitement-Seeking',t:"Ich suche Abenteuer.",r:false},
+  {d:'E',f:'Excitement-Seeking',t:"Ich genieße es, draufgängerisch zu sein.",r:false},
+  {d:'E',f:'Excitement-Seeking',t:"Ich verhalte mich wild und unbekümmert.",r:false},
+  // E6 Cheerfulness
+  {d:'E',f:'Cheerfulness',t:"Ich strahle Freude aus.",r:false},
+  {d:'E',f:'Cheerfulness',t:"Ich habe viel Spaß.",r:false},
+  {d:'E',f:'Cheerfulness',t:"Ich liebe das Leben.",r:false},
+  {d:'E',f:'Cheerfulness',t:"Ich sehe die Dinge von der positiven Seite.",r:false},
+  // O1 Imagination
+  {d:'O',f:'Imagination',t:"Ich habe eine lebhafte Fantasie.",r:false},
+  {d:'O',f:'Imagination',t:"Ich genieße wilde Phantasiereisen.",r:false},
+  {d:'O',f:'Imagination',t:"Ich träume gerne vor mich hin.",r:false},
+  {d:'O',f:'Imagination',t:"Ich verliere mich gerne in Gedanken.",r:false},
+  // O2 Artistic Interests
+  {d:'O',f:'Artistic Interests',t:"Ich glaube an die Bedeutung von Kunst.",r:false},
+  {d:'O',f:'Artistic Interests',t:"Ich sehe Schönheit in Dingen, die andere vielleicht nicht bemerken.",r:false},
+  {d:'O',f:'Artistic Interests',t:"Ich mag keine Lyrik.",r:true},
+  {d:'O',f:'Artistic Interests',t:"Ich besuche nicht gerne Kunstmuseen.",r:true},
+  // O3 Emotionality
+  {d:'O',f:'Emotionality',t:"Ich erlebe meine Gefühle intensiv.",r:false},
+  {d:'O',f:'Emotionality',t:"Ich spüre die Gefühle anderer.",r:false},
+  {d:'O',f:'Emotionality',t:"Ich bemerke meine emotionalen Reaktionen kaum.",r:true},
+  {d:'O',f:'Emotionality',t:"Ich verstehe Menschen nicht, die sich emotional zeigen.",r:true},
+  // O4 Adventurousness
+  {d:'O',f:'Adventurousness',t:"Ich bevorzuge Abwechslung gegenüber Routine.",r:false},
+  {d:'O',f:'Adventurousness',t:"Ich halte lieber an Bewährtem fest.",r:true},
+  {d:'O',f:'Adventurousness',t:"Ich mag keine Veränderungen.",r:true},
+  {d:'O',f:'Adventurousness',t:"Ich hänge an gewohnten Dingen.",r:true},
+  // O5 Intellect
+  {d:'O',f:'Intellect',t:"Ich lese gerne anspruchsvolles Material.",r:false},
+  {d:'O',f:'Intellect',t:"Ich meide philosophische Diskussionen.",r:true},
+  {d:'O',f:'Intellect',t:"Ich habe Schwierigkeiten, abstrakte Ideen zu verstehen.",r:true},
+  {d:'O',f:'Intellect',t:"Ich interessiere mich nicht für theoretische Diskussionen.",r:true},
+  // O6 Liberalism (Values/Traditionalism — neutral formulation)
+  {d:'O',f:'Liberalism',t:"Ich stelle gesellschaftliche Normen und Konventionen in Frage.",r:false},
+  {d:'O',f:'Liberalism',t:"Ich glaube, es gibt kein absolutes Richtig und Falsch.",r:false},
+  {d:'O',f:'Liberalism',t:"Ich respektiere Autoritäten und Traditionen.",r:true},
+  {d:'O',f:'Liberalism',t:"Ich halte an bewährten Werten fest.",r:true},
+  // A1 Trust
+  {d:'A',f:'Trust',t:"Ich vertraue anderen.",r:false},
+  {d:'A',f:'Trust',t:"Ich glaube, dass andere gute Absichten haben.",r:false},
+  {d:'A',f:'Trust',t:"Ich vertraue dem, was Menschen sagen.",r:false},
+  {d:'A',f:'Trust',t:"Ich misstraue Menschen.",r:true},
+  // A2 Morality
+  {d:'A',f:'Morality',t:"Ich nutze andere für meine eigenen Zwecke.",r:true},
+  {d:'A',f:'Morality',t:"Ich betrüge, um weiterzukommen.",r:true},
+  {d:'A',f:'Morality',t:"Ich nutze andere aus.",r:true},
+  {d:'A',f:'Morality',t:"Ich behindere die Pläne anderer.",r:true},
+  // A3 Altruism
+  {d:'A',f:'Altruism',t:"Ich mache mir Sorgen um andere.",r:false},
+  {d:'A',f:'Altruism',t:"Ich helfe anderen gerne.",r:false},
+  {d:'A',f:'Altruism',t:"Ich bin gleichgültig gegenüber den Gefühlen anderer.",r:true},
+  {d:'A',f:'Altruism',t:"Ich nehme mir keine Zeit für andere.",r:true},
+  // A4 Cooperation
+  {d:'A',f:'Cooperation',t:"Ich mag einen guten Streit.",r:true},
+  {d:'A',f:'Cooperation',t:"Ich schreie andere an.",r:true},
+  {d:'A',f:'Cooperation',t:"Ich beleidige Menschen.",r:true},
+  {d:'A',f:'Cooperation',t:"Ich zahle es anderen heim.",r:true},
+  // A5 Modesty
+  {d:'A',f:'Modesty',t:"Ich glaube, ich bin besser als andere.",r:true},
+  {d:'A',f:'Modesty',t:"Ich halte sehr viel von mir.",r:true},
+  {d:'A',f:'Modesty',t:"Ich habe eine hohe Meinung von mir selbst.",r:true},
+  {d:'A',f:'Modesty',t:"Ich rühme meine eigenen Tugenden.",r:true},
+  // A6 Sympathy
+  {d:'A',f:'Sympathy',t:"Ich habe Mitgefühl mit Obdachlosen.",r:false},
+  {d:'A',f:'Sympathy',t:"Ich empfinde Mitleid mit denen, denen es schlechter geht als mir.",r:false},
+  {d:'A',f:'Sympathy',t:"Ich interessiere mich nicht für die Probleme anderer.",r:true},
+  {d:'A',f:'Sympathy',t:"Ich versuche, nicht an Bedürftige zu denken.",r:true},
+  // C1 Self-Efficacy
+  {d:'C',f:'Self-Efficacy',t:"Ich erledige Aufgaben erfolgreich.",r:false},
+  {d:'C',f:'Self-Efficacy',t:"Ich bin hervorragend in dem, was ich tue.",r:false},
+  {d:'C',f:'Self-Efficacy',t:"Ich erledige Dinge reibungslos.",r:false},
+  {d:'C',f:'Self-Efficacy',t:"Ich weiß, wie man Dinge erledigt.",r:false},
+  // C2 Orderliness
+  {d:'C',f:'Orderliness',t:"Ich räume gerne auf.",r:false},
+  {d:'C',f:'Orderliness',t:"Ich vergesse oft, Dinge an ihren richtigen Platz zurückzulegen.",r:true},
+  {d:'C',f:'Orderliness',t:"Ich hinterlasse Unordnung in meinem Zimmer.",r:true},
+  {d:'C',f:'Orderliness',t:"Ich lasse meine Sachen herumliegen.",r:true},
+  // C3 Dutifulness
+  {d:'C',f:'Dutifulness',t:"Ich halte meine Versprechen.",r:false},
+  {d:'C',f:'Dutifulness',t:"Ich sage die Wahrheit.",r:false},
+  {d:'C',f:'Dutifulness',t:"Ich breche Regeln.",r:true},
+  {d:'C',f:'Dutifulness',t:"Ich breche meine Versprechen.",r:true},
+  // C4 Achievement-Striving
+  {d:'C',f:'Achievement-Striving',t:"Ich tue mehr als erwartet wird.",r:false},
+  {d:'C',f:'Achievement-Striving',t:"Ich arbeite hart.",r:false},
+  {d:'C',f:'Achievement-Striving',t:"Ich stecke wenig Zeit und Mühe in meine Arbeit.",r:true},
+  {d:'C',f:'Achievement-Striving',t:"Ich tue gerade das Minimum, um durchzukommen.",r:true},
+  // C5 Self-Discipline
+  {d:'C',f:'Self-Discipline',t:"Ich bin immer vorbereitet.",r:false},
+  {d:'C',f:'Self-Discipline',t:"Ich führe meine Pläne durch.",r:false},
+  {d:'C',f:'Self-Discipline',t:"Ich vergeude meine Zeit.",r:true},
+  {d:'C',f:'Self-Discipline',t:"Ich habe Schwierigkeiten, Aufgaben anzufangen.",r:true},
+  // C6 Cautiousness
+  {d:'C',f:'Cautiousness',t:"Ich stürze mich in Dinge, ohne nachzudenken.",r:true},
+  {d:'C',f:'Cautiousness',t:"Ich treffe vorschnelle Entscheidungen.",r:true},
+  {d:'C',f:'Cautiousness',t:"Ich überstürze Dinge.",r:true},
+  {d:'C',f:'Cautiousness',t:"Ich handle, ohne nachzudenken.",r:true}
+];
+
+const OPTS = [
+  {v:1, l:"Stimme überhaupt nicht zu", s:"Sehr unzutreffend"},
+  {v:2, l:"Stimme eher nicht zu",       s:"Unzutreffend"},
+  {v:3, l:"Neutral",                    s:"Weder noch"},
+  {v:4, l:"Stimme eher zu",             s:"Zutreffend"},
+  {v:5, l:"Stimme voll zu",             s:"Sehr zutreffend"}
+];
+
+// ── STATE ─────────────────────────────────────────────
+let curIdx = 0, answers = new Array(120).fill(null);
+
+// ── UTILS ─────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function avg(a) { return a.length ? a.reduce((s,v) => s+v, 0)/a.length : 3; }
+function cdf(x) { return .5*(1+erf(x/Math.sqrt(2))); }
+function erf(x) {
+  const a=[.254829592,-.284496736,1.421413741,-1.453152027,1.061405429], p=.3275911;
+  const s=x<0?-1:1; x=Math.abs(x);
+  const t=1/(1+p*x);
+  return s*(1-((((a[4]*t+a[3])*t+a[2])*t+a[1])*t+a[0])*t*Math.exp(-x*x));
+}
+function pctCol(p) {
+  if(p<20) return '#ef4444'; if(p<40) return '#f97316';
+  if(p<60) return '#eab308'; if(p<80) return '#84cc16'; return '#22c55e';
+}
+
+// ── COVER ─────────────────────────────────────────────
+function beginTest() {
+  curIdx = 0; answers = new Array(120).fill(null);
+  show('test'); renderQ();
+}
+
+// ── TEST ──────────────────────────────────────────────
+function renderQ() {
+  const q = Q[curIdx], dom = DOM[q.d];
+  const fi = FAC[q.d].find(f => f.k === q.f);
+
+  // chip
+  const chip = document.getElementById('hdr-chip');
+  chip.textContent = q.d;
+  chip.style.background = dom.bg;
+  chip.style.color = dom.c;
+  chip.style.border = '1px solid ' + dom.c + '33';
+
+  document.getElementById('hdr-dom').textContent = `${dom.en} · ${dom.de}`;
+  document.getElementById('hdr-fac').textContent  = `${q.f} · ${fi ? fi.de : q.f}`;
+  document.getElementById('q-cur').textContent    = curIdx + 1;
+  document.getElementById('prog-f').style.width   = (curIdx/120*100) + '%';
+  document.getElementById('q-facet').textContent  = `Frage ${curIdx+1} von 120 · ${dom.de} · ${fi ? fi.de : q.f}`;
+  document.getElementById('q-text').textContent   = q.t;
+  document.getElementById('back-btn').disabled    = curIdx === 0;
+
+  const c = document.getElementById('opts'); c.innerHTML = '';
+  OPTS.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (answers[curIdx] === o.v ? ' sel' : '');
+    b.innerHTML = `<div class="opt-n">${o.v}</div><div><div class="opt-l">${o.l}</div><div class="opt-s">${o.s}</div></div>`;
+    b.onclick = () => pick(o.v);
+    c.appendChild(b);
+  });
+}
+
+function pick(v) {
+  answers[curIdx] = v;
+  document.querySelectorAll('.opt').forEach((b,i) => b.classList.toggle('sel', i === v-1));
+  setTimeout(() => {
+    if (curIdx < 119) { curIdx++; renderQ(); } else finishTest();
+  }, 170);
+}
+
+function prevQ() { if (curIdx > 0) { curIdx--; renderQ(); } }
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('test').classList.contains('active')) return;
+  if (e.key >= '1' && e.key <= '5') pick(parseInt(e.key));
+  if (e.key === 'ArrowLeft') prevQ();
+});
+
+// ── RESULTS ───────────────────────────────────────────
+function finishTest() {
+  show('loading');
+  setTimeout(() => { buildResults(); show('results'); window.scrollTo(0,0); }, 1100);
+}
+
+function buildResults() {
+  const dS = {O:[],C:[],E:[],A:[],N:[]};
+  const fS = {};
+  ['O','C','E','A','N'].forEach(d => FAC[d].forEach(f => { fS[d+'_'+f.k] = []; }));
+
+  Q.forEach((q,i) => {
+    let v = answers[i] ?? 3; if (q.r) v = 6-v;
+    dS[q.d].push(v);
+    const k = q.d+'_'+q.f; if (fS[k]) fS[k].push(v);
+  });
+
+  document.getElementById('r-meta').textContent =
+    `IPIP-NEO-120 · Johnson (2014) · ${new Date().toLocaleDateString('de-DE')}`;
+
+  buildRadar(dS);
+
+  const legEl = document.getElementById('r-legend'); legEl.innerHTML = '';
+  const cardsEl = document.getElementById('dom-cards'); cardsEl.innerHTML = '';
+
+  ['O','C','E','A','N'].forEach(d => {
+    const m = avg(dS[d]), z = (m - NORMS[d].mean)/NORMS[d].sd;
+    const pct = Math.round(cdf(z)*100), pcol = pctCol(pct), dom = DOM[d];
+
+    // Legend
+    const lr = document.createElement('div'); lr.className = 'rl';
+    lr.innerHTML = `<div class="rl-dot" style="background:${dom.c}"></div>
+      <div class="rl-names"><div class="rl-en">${dom.en}</div><div class="rl-de">${dom.de}</div></div>
+      <div class="rl-val">${m.toFixed(2)}</div>
+      <span class="rl-pct" style="color:${pcol};border-color:${pcol}">${pct}%</span>`;
+    legEl.appendChild(lr);
+
+    // Facets HTML
+    let fHTML = '';
+    FAC[d].forEach(f => {
+      const fm = avg(fS[d+'_'+f.k] || [3]);
+      fHTML += `<div class="fct">
+        <div class="fct-head">
+          <div><span class="fct-en">${f.k}</span><span class="fct-de">· ${f.de}</span></div>
+          <span class="fct-val" style="color:${dom.c}">${fm.toFixed(2)}</span>
+        </div>
+        <div class="fct-bg"><div class="fct-f" style="width:${((fm-1)/4*100).toFixed(1)}%;background:${dom.c}"></div></div>
+      </div>`;
+    });
+
+    // Card
+    const card = document.createElement('div'); card.className = 'dom-card';
+    card.style.borderTop = `2px solid ${dom.c}`;
+    card.innerHTML = `
+      <div class="dc-hdr" style="background:${dom.bg}">
+        <div class="dc-left">
+          <div class="dc-ltr" style="color:${dom.c}">${d}</div>
+          <div class="dc-en">${dom.en}</div>
+          <div class="dc-de">${dom.de}</div>
+        </div>
+        <div class="dc-right">
+          <div class="dc-mean" style="color:${dom.c}">${m.toFixed(2)}</div>
+          <div class="dc-pct" style="background:${pcol}18;color:${pcol}">${pct}. Percentile</div>
+          <div class="dc-norm">vs. Normstichprobe</div>
+        </div>
+      </div>
+      <div class="dc-bar-wrap">
+        <div class="dc-bar-bg"><div class="dc-bar-f" style="width:${((m-1)/4*100).toFixed(1)}%;background:${dom.c}"></div></div>
+      </div>
+      <div class="fcts">${fHTML}</div>`;
+    cardsEl.appendChild(card);
+  });
+}
+
+function buildRadar(dS) {
+  const svg = document.getElementById('radar-svg'); svg.innerHTML = '';
+  const cx=140, cy=140, r=100, dims=['O','C','E','A','N'], n=5;
+
+  function ptAt(i,v) { const a=(Math.PI*2/n)*i-Math.PI/2, rr=((v-1)/4)*r; return [cx+rr*Math.cos(a), cy+rr*Math.sin(a)]; }
+  function rim(i,rr) { const a=(Math.PI*2/n)*i-Math.PI/2; return [cx+rr*Math.cos(a), cy+rr*Math.sin(a)]; }
+
+  // Grid
+  [.25,.5,.75,1].forEach(f => {
+    const pts = dims.map((_,i) => rim(i,r*f).join(',')).join(' ');
+    const p = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    p.setAttribute('points',pts); p.setAttribute('fill','none');
+    p.setAttribute('stroke','rgba(26,26,24,.07)'); p.setAttribute('stroke-width','1');
+    svg.appendChild(p);
+  });
+  dims.forEach((_,i) => {
+    const [x2,y2] = rim(i,r);
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',cx); l.setAttribute('y1',cy); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke','rgba(26,26,24,.07)'); l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
+  });
+
+  // Data
+  const vals = dims.map(d => avg(dS[d]));
+  const dpts = vals.map((v,i) => ptAt(i,v));
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points', dpts.map(p=>p.join(',')).join(' '));
+  poly.setAttribute('fill','rgba(26,26,24,.06)');
+  poly.setAttribute('stroke','rgba(26,26,24,.4)');
+  poly.setAttribute('stroke-width','1.5');
+  svg.appendChild(poly);
+
+  dims.forEach((d,i) => {
+    const [x,y] = dpts[i], [lx,ly] = rim(i,r+22);
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x); dot.setAttribute('cy',y);
+    dot.setAttribute('r','4'); dot.setAttribute('fill', DOM[d].c);
+    svg.appendChild(dot);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',lx); lbl.setAttribute('y',ly);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('dominant-baseline','middle');
+    lbl.setAttribute('font-family',"'DM Serif Display',serif");
+    lbl.setAttribute('font-size','17'); lbl.setAttribute('fill', DOM[d].c);
+    lbl.textContent = d;
+    svg.appendChild(lbl);
+  });
+}
+
+function restartTest() {
+  if (confirm('Test wirklich neu starten?')) {
+    curIdx = 0; answers = new Array(120).fill(null); show('cover');
+  }
+}
+
+function downloadJSON() {
+  const dS = {O:[],C:[],E:[],A:[],N:[]};
+  const fS = {};
+  ['O','C','E','A','N'].forEach(d => FAC[d].forEach(f => { fS[d+'_'+f.k] = []; }));
+
+  Q.forEach((q,i) => {
+    let v = answers[i] ?? 3; if (q.r) v = 6-v;
+    dS[q.d].push(v);
+    const k = q.d+'_'+q.f; if (fS[k]) fS[k].push(v);
+  });
+
+  const results = {
+    timestamp: new Date().toISOString(),
+    instrument: "IPIP-NEO-120 (Johnson 2014, O6 neutrally reformulated)",
+    reference: "ipip.ori.org",
+    domains: {},
+    facets: {}
+  };
+
+  ['O','C','E','A','N'].forEach(d => {
+    const m = avg(dS[d]);
+    const z = (m - NORMS[d].mean) / NORMS[d].sd;
+    const pct = Math.round(cdf(z)*100);
+    results.domains[d] = { mean: parseFloat(m.toFixed(2)), percentile: pct };
+    
+    results.facets[d] = {};
+    FAC[d].forEach(f => {
+      const fm = avg(fS[d+'_'+f.k] || [3]);
+      results.facets[d][f.k] = parseFloat(fm.toFixed(2));
+    });
+  });
+
+  const dataStr = JSON.stringify(results, null, 2);
+  const dataBlob = new Blob([dataStr], {type: "application/json"});
+  const url = URL.createObjectURL(dataBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `IPIP-NEO-120_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+show('cover');
+</script>
+</body>
+</html>
